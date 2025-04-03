@@ -17,7 +17,7 @@ class="center">
 </p>
 
 ## 🔥 News
-- [04/2025] 🔥 The inference code is available in this repo. The [training code](https://github.com/bytedance/UNO), [model](https://huggingface.co/bytedance-research/UNO), and [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) will coming soon.
+- [04/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released. The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) will coming soon.
 - [04/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created. The paper of UNO will be released on arXiv.
 
 ## 📖 Introduction
@@ -68,14 +68,31 @@ python inference.py
 accelerate launch train.py
 ```
 
+## 🎨 Application Scenarios
+<p align="center">
+<img src="./assets/simplecase.jpeg" width=95% height=95% 
+class="center">
+</p>
 
-## 🔥Updates
-We will open source this project as soon as possible. Thank you for your patience and support! 🌟
+## 📄 Disclaimer
+<p>
+We open-source this project for academic research. The vast majority of images 
+used in this project are either generated or licensed. If you have any concerns, 
+please contact us, and we will promptly remove any inappropriate content. 
+Our code is released under the Apache 2.0 License,, while our models are under 
+the CC BY-NC 4.0 License. Any models related to <a href="https://huggingface.co/black-forest-labs/FLUX.1-dev" target="_blank">FLUX.1-dev</a> 
+base model must adhere to the original licensing terms.
+<br><br>This research aims to advance the field of generative AI. Users are free to 
+create images using this tool, provided they comply with local laws and exercise 
+responsible usage. The developers are not liable for any misuse of the tool by users.</p>
+
+## 🚀 Updates
+For the purpose of fostering research and the open-source community, we plan to open-source the entire project, encompassing training, inference, weights, etc. Thank you for your patience and support! 🌟
 - [x] Release github repo.
 - [x] Release inference code.
-- [ ] Release model checkpoints.
+- [x] Release training code.
+- [x] Release model checkpoints.
 - [ ] Release arXiv paper.
-- [ ] Release training code.
 - [ ] Release in-context data generation pipelines.
 
 ##  Citation
