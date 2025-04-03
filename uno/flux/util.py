@@ -18,14 +18,10 @@ from dataclasses import dataclass
 
 import torch
 import json
-import cv2
 import numpy as np
-from PIL import Image
 from huggingface_hub import hf_hub_download
 from safetensors import safe_open
 from safetensors.torch import load_file as load_sft
-
-from optimum.quanto import requantize
 
 from .model import Flux, FluxParams
 from .modules.autoencoder import AutoEncoder, AutoEncoderParams
@@ -339,6 +335,7 @@ def set_lora(
 
 def load_flow_model_quintized(name: str, device: str | torch.device = "cuda", hf_download: bool = True):
     # Loading Flux
+    from optimum.quanto import requantize
     print("Init model")
     ckpt_path = configs[name].ckpt_path
     if (

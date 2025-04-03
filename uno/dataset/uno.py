@@ -14,20 +14,13 @@
 # limitations under the License.
 
 import json
-import math
 import os
-import random
 
-import cv2
 import numpy as np
 import torch
 import torchvision.transforms.functional as TVF
-from PIL import Image, ImageDraw, ImageFont
-from pycocotools import mask as coco_mask
-from torch.utils.data import DataLoader, Dataset, default_collate
-from torchvision import transforms
-from torchvision.transforms import CenterCrop, Compose, Normalize, RandomResizedCrop, ToTensor
-from torchvision.transforms.functional import InterpolationMode
+from torch.utils.data import DataLoader, Dataset
+from torchvision.transforms import Compose, Normalize, ToTensor
 
 def bucket_images(images: list[torch.Tensor], resolution: int = 512):
     bucket_override=[
