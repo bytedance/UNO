@@ -87,4 +87,4 @@ if __name__ == "__main__":
     args = args_tuple[0]
 
     demo = create_demo(args.name, args.device, args.offload)
-    demo.launch(server_port=args.port)
+    demo.launch(server_name="0.0.0.0", server_port=args.port)
