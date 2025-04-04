@@ -4,7 +4,8 @@
 </h3>
 
 <p align="center"> 
-<a href="https://bytedance.github.io/UNO//"><img alt="Build" src="https://img.shields.io/badge/Project%20Page-UNO-yellow"></a> 
+<a href="https://bytedance.github.io/UNO/"><img alt="Build" src="https://img.shields.io/badge/Project%20Page-UNO-yellow"></a> 
+<a href="https://arxiv.org/abs/2504.02160"><img alt="Build" src="https://img.shields.io/badge/arXiv%20paper-2504.02160-b31b1b.svg"></a>
 <a href="https://huggingface.co/bytedance-research/UNO"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=Model&color=orange"></a>
 </p>
 
@@ -18,7 +19,8 @@ class="center">
 
 ## 🔥 News
 - [04/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released. The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) will coming soon.
-- [04/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created. The paper of UNO will be released on arXiv.
+- [04/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created.
+- [04/2025] 🔥 The arXiv [paper](https://arxiv.org/abs/2504.02160) of UNO is released.
 
 ## 📖 Introduction
 In this study, we propose a highly-consistent data synthesis pipeline to tackle this challenge. This pipeline harnesses the intrinsic in-context generation capabilities of diffusion transformers and generates high-consistency multi-subject paired data. Additionally, we introduce UNO, which consists of progressive cross-modal alignment and universal rotary position embedding. It is a multi-image conditioned subject-to-image model iteratively trained from a text-to-image model. Extensive experiments show that our method can achieve high consistency while ensuring controllability in both single-subject and multi-subject driven generation.
@@ -26,7 +28,7 @@ In this study, we propose a highly-consistent data synthesis pipeline to tackle 
 
 ## ⚡️ Quick Start
 
-## 🔧 Requirements and Installation
+### 🔧 Requirements and Installation
 
 Install the requirements
 ```bash
@@ -92,8 +94,21 @@ For the purpose of fostering research and the open-source community, we plan to 
 - [x] Release inference code.
 - [x] Release training code.
 - [x] Release model checkpoints.
-- [ ] Release arXiv paper.
+- [x] Release arXiv paper.
 - [ ] Release in-context data generation pipelines.
 
 ##  Citation
 If UNO is helpful, please help to ⭐ the repo.
+
+If you find this project useful for your research, please consider citing our paper:
+```bibtex
+@misc{wu2025lesstomoregeneralizationunlockingcontrollability,
+      title={Less-to-More Generalization: Unlocking More Controllability by In-Context Generation}, 
+      author={Shaojin Wu and Mengqi Huang and Wenxu Wu and Yufeng Cheng and Fei Ding and Qian He},
+      year={2025},
+      eprint={2504.02160},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2504.02160}, 
+}
+```
