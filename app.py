@@ -33,9 +33,9 @@ def create_demo(
             with gr.Column():
                 prompt = gr.Textbox(label="Prompt", value="handsome woman in the city")
                 with gr.Row():
-                    image_prompt1 = gr.Image(label="ref img1", visible=True, interactive=True, type="pil")
-                    image_prompt2 = gr.Image(label="ref img2", visible=True, interactive=True, type="pil")
-                    image_prompt3 = gr.Image(label="ref img3", visible=True, interactive=True, type="pil")
+                    image_prompt1 = gr.Image(label="Ref Img1", visible=True, interactive=True, type="pil")
+                    image_prompt2 = gr.Image(label="Ref Img2", visible=True, interactive=True, type="pil")
+                    image_prompt3 = gr.Image(label="Ref Img3", visible=True, interactive=True, type="pil")
                     image_prompt4 = gr.Image(label="ref img4", visible=True, interactive=True, type="pil")
 
                 with gr.Row():
@@ -56,7 +56,7 @@ def create_demo(
                             " and the higher size gives a better visual effect but is less stable"
                         )
 
-                with gr.Accordion("Generation Options", open=False):
+                with gr.Accordion("Advanced Options", open=False):
                     with gr.Row():
                         num_steps = gr.Slider(1, 50, 25, step=1, label="Number of steps")
                         guidance = gr.Slider(1.0, 5.0, 4.0, step=0.1, label="Guidance", interactive=True)
@@ -78,6 +78,28 @@ def create_demo(
                 inputs=inputs,
                 outputs=[output_image, download_btn],
             )
+        
+        example_text = gr.Text("", visible=False, label="Case For:")
+
+        example_three_ip = [
+            "Many2One",
+            "A woman wears the dress and holds a bag, in the flowers",
+            "assets/examples/many2one/ref1.png",
+            "assets/examples/many2one/ref2.png",
+            "assets/examples/many2one/ref3.png",
+            72,
+            256,
+            "assets/examples/many2one/result.png",
+        ]
+
+        gr.Examples(
+            examples=[
+                example_three_ip,
+            ],
+            inputs=[
+                example_text, prompt, image_prompt1, image_prompt2, image_prompt3, seed, ref_long_side, output_image
+            ]
+        )
 
     return demo
 
@@ -101,4 +123,4 @@ if __name__ == "__main__":
     args = args_tuple[0]
 
     demo = create_demo(args.name, args.device, args.offload)
-    demo.launch(server_name="0.0.0.0", server_port=args.port)
+    demo.launch(server_port=args.port)
