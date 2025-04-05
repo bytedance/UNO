@@ -1,0 +1,8 @@
+{
+    "prompt": "A clock on the beach is under a red sun umbrella",
+    "seed": 0,
+    "ref_long_side": 512,
+    "useage": "one2one",
+    "image_ref1": "./ref1.jpg",
+    "image_result": "./result.png"
+}

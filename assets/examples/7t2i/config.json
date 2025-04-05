@@ -1,0 +1,7 @@
+{
+    "prompt": "A woman wears the dress and holds a bag, in the flowers.",
+    "seed": 37635012,
+    "ref_long_side": 512,
+    "useage": "t2i",
+    "image_result": "./result.png"
+}

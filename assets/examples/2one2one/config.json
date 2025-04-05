@@ -1,0 +1,8 @@
+{
+    "prompt": "A pretty woman wears a flower petal dress, in the flower",
+    "seed": 1,
+    "ref_long_side": 512,
+    "useage": "one2one",
+    "image_ref1": "./ref1.png",
+    "image_result": "./result.png"
+}

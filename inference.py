@@ -55,7 +55,7 @@ class InferenceArgs:
     guidance: float = 4
     seed: int = 42
     save_path: str = "output/inference"
-    only_lora: bool = False
+    only_lora: bool = True
     concat_refs: bool = False
     lora_rank: int = 512
     data_resolution: int = 512

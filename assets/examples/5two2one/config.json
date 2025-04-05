@@ -1,0 +1,9 @@
+{
+    "prompt": "The figurine is in the crystal ball",
+    "seed": 1,
+    "ref_long_side": 320,
+    "useage": "two2one",
+    "image_ref1": "./ref1.png",
+    "image_ref2": "./ref2.png",
+    "image_result": "./result.png"
+}

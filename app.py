@@ -13,11 +13,41 @@
 # limitations under the License.
 
 import dataclasses
+import json
+from pathlib import Path
 
 import gradio as gr
 import torch
 
 from uno.flux.pipeline import UNOPipeline
+
+
+def get_examples(examples_dir: str = "assets/examples") -> list:
+    examples = Path(examples_dir)
+    ans = []
+    for example in examples.iterdir():
+        if not example.is_dir():
+            continue
+        with open(example / "config.json") as f:
+            example_dict = json.load(f)
+  
+        
+        example_list = []
+
+        example_list.append(example_dict["useage"])  # case for
+        example_list.append(example_dict["prompt"])  # prompt
+
+        for key in ["image_ref1", "image_ref2", "image_ref3", "image_ref4"]:
+            if key in example_dict:
+                example_list.append(str(example / example_dict[key]))
+            else:
+                example_list.append(None)
+
+        example_list.append(example_dict["seed"])
+        example_list.append(example_dict["ref_long_side"])
+
+        ans.append(example_list)
+    return ans
 
 
 def create_demo(
@@ -33,9 +63,9 @@ def create_demo(
             with gr.Column():
                 prompt = gr.Textbox(label="Prompt", value="handsome woman in the city")
                 with gr.Row():
-                    image_prompt1 = gr.Image(label="ref img1", visible=True, interactive=True, type="pil")
-                    image_prompt2 = gr.Image(label="ref img2", visible=True, interactive=True, type="pil")
-                    image_prompt3 = gr.Image(label="ref img3", visible=True, interactive=True, type="pil")
+                    image_prompt1 = gr.Image(label="Ref Img1", visible=True, interactive=True, type="pil")
+                    image_prompt2 = gr.Image(label="Ref Img2", visible=True, interactive=True, type="pil")
+                    image_prompt3 = gr.Image(label="Ref Img3", visible=True, interactive=True, type="pil")
                     image_prompt4 = gr.Image(label="ref img4", visible=True, interactive=True, type="pil")
 
                 with gr.Row():
@@ -43,7 +73,7 @@ def create_demo(
                         ref_long_side = gr.Slider(128, 512, 512, step=16, label="Long side of Ref Images")
                     with gr.Column():
                         gr.Markdown("📌 **The recommended ref scale** is related to the ref img number.\n")
-                        gr.Markdown("   1->512 / 2->320 / 3...n->256")
+                        gr.Markdown("   1->512 / 2,3,4->320")
 
                 with gr.Row():
                     with gr.Column():
@@ -56,7 +86,7 @@ def create_demo(
                             " and the higher size gives a better visual effect but is less stable"
                         )
 
-                with gr.Accordion("Generation Options", open=False):
+                with gr.Accordion("Advanced Options", open=False):
                     with gr.Row():
                         num_steps = gr.Slider(1, 50, 25, step=1, label="Number of steps")
                         guidance = gr.Slider(1.0, 5.0, 4.0, step=0.1, label="Guidance", interactive=True)
@@ -78,6 +108,18 @@ def create_demo(
                 inputs=inputs,
                 outputs=[output_image, download_btn],
             )
+        
+        example_text = gr.Text("", visible=False, label="Case For:")
+        examples = get_examples("./assets/examples")
+
+        gr.Examples(
+            examples=examples,
+            inputs=[
+                example_text, prompt,
+                image_prompt1, image_prompt2, image_prompt3, image_prompt4,
+                seed, ref_long_side, output_image
+            ],
+        )
 
     return demo
 
@@ -101,4 +143,4 @@ if __name__ == "__main__":
     args = args_tuple[0]
 
     demo = create_demo(args.name, args.device, args.offload)
-    demo.launch(server_name="0.0.0.0", server_port=args.port)
+    demo.launch(server_port=args.port)

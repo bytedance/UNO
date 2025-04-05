@@ -1,0 +1,8 @@
+{
+    "prompt": "3d cartoon style, a woman.",
+    "seed": 2,
+    "ref_long_side": 512,
+    "useage": "one2one",
+    "image_ref1": "./ref1.png",
+    "image_result": "./result.png"
+}
