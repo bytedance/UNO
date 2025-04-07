@@ -6,6 +6,8 @@ huggingface-hub
 diffusers==0.30.1
 sentencepiece==0.2.0
 gradio==5.22.0
+opencv-python==4.11.0
+
 
 --extra-index-url https://download.pytorch.org/whl/cu124
 torch==2.4.0
