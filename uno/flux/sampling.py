@@ -215,9 +215,6 @@ def denoise(
     txt: Tensor,
     txt_ids: Tensor,
     vec: Tensor,
-    neg_txt: Tensor,
-    neg_txt_ids: Tensor,
-    neg_vec: Tensor,
     # sampling parameters
     timesteps: list[float],
     guidance: float = 4.0,

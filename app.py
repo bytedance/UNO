@@ -44,7 +44,6 @@ def get_examples(examples_dir: str = "assets/examples") -> list:
                 example_list.append(None)
 
         example_list.append(example_dict["seed"])
-        example_list.append(example_dict["ref_long_side"])
 
         ans.append(example_list)
     return ans
@@ -57,8 +56,18 @@ def create_demo(
 ):
     pipeline = UNOPipeline(model_type, device, offload, only_lora=True, lora_rank=512)
 
+    badges_text = r"""
+    <div style="text-align: center; display: flex; justify-content: left; gap: 5px;">
+    <a href="https://bytedance.github.io/UNO/"><img alt="Build" src="https://img.shields.io/badge/Project%20Page-UNO-yellow"></a> 
+    <a href="https://arxiv.org/abs/2504.02160"><img alt="Build" src="https://img.shields.io/badge/arXiv%20paper-UNO-b31b1b.svg"></a>
+    <a href="https://huggingface.co/bytedance-research/UNO"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=Model&color=orange"></a>
+    <a href="https://huggingface.co/spaces/bytedance-research/UNO-FLUX"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=demo&color=orange"></a>
+    </div>
+    """.strip()
+
     with gr.Blocks() as demo:
         gr.Markdown(f"# UNO by UNO team")
+        gr.Markdown(badges_text)
         with gr.Row():
             with gr.Column():
                 prompt = gr.Textbox(label="Prompt", value="handsome woman in the city")
@@ -66,14 +75,7 @@ def create_demo(
                     image_prompt1 = gr.Image(label="Ref Img1", visible=True, interactive=True, type="pil")
                     image_prompt2 = gr.Image(label="Ref Img2", visible=True, interactive=True, type="pil")
                     image_prompt3 = gr.Image(label="Ref Img3", visible=True, interactive=True, type="pil")
-                    image_prompt4 = gr.Image(label="ref img4", visible=True, interactive=True, type="pil")
-
-                with gr.Row():
-                    with gr.Column():
-                        ref_long_side = gr.Slider(128, 512, 512, step=16, label="Long side of Ref Images")
-                    with gr.Column():
-                        gr.Markdown("📌 **The recommended ref scale** is related to the ref img number.\n")
-                        gr.Markdown("   1->512 / 2,3,4->320")
+                    image_prompt4 = gr.Image(label="Ref img4", visible=True, interactive=True, type="pil")
 
                 with gr.Row():
                     with gr.Column():
@@ -101,7 +103,7 @@ def create_demo(
 
             inputs = [
                 prompt, width, height, guidance, num_steps,
-                seed, ref_long_side, image_prompt1, image_prompt2, image_prompt3, image_prompt4
+                seed, image_prompt1, image_prompt2, image_prompt3, image_prompt4
             ]
             generate_btn.click(
                 fn=pipeline.gradio_generate,
@@ -117,7 +119,7 @@ def create_demo(
             inputs=[
                 example_text, prompt,
                 image_prompt1, image_prompt2, image_prompt3, image_prompt4,
-                seed, ref_long_side, output_image
+                seed, output_image
             ],
         )
 

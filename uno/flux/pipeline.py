@@ -27,7 +27,7 @@ from uno.flux.modules.layers import (
     SingleStreamBlockLoraProcessor,
     SingleStreamBlockProcessor,
 )
-from uno.flux.sampling import denoise, get_noise, get_schedule, prepare, prepare_multi_ip, unpack
+from uno.flux.sampling import denoise, get_noise, get_schedule, prepare_multi_ip, unpack
 from uno.flux.util import (
     get_lora_rank,
     load_ae,
@@ -185,8 +185,6 @@ class UNOPipeline:
         guidance: float = 4,
         num_steps: int = 50,
         seed: int = 123456789,
-        neg_prompt: str = '',
-        neg_image_prompt: Image = None,
         **kwargs
     ):
         width = 16 * (width // 16)
@@ -199,7 +197,6 @@ class UNOPipeline:
             guidance,
             num_steps,
             seed,
-            neg_prompt=neg_prompt,
             **kwargs
         )
 
@@ -212,7 +209,6 @@ class UNOPipeline:
         guidance: float,
         num_steps: int,
         seed: int,
-        ref_long_side: int,
         image_prompt1: Image.Image,
         image_prompt2: Image.Image,
         image_prompt3: Image.Image,
@@ -220,6 +216,7 @@ class UNOPipeline:
     ):
         ref_imgs = [image_prompt1, image_prompt2, image_prompt3, image_prompt4]
         ref_imgs = [img for img in ref_imgs if isinstance(img, Image.Image)]
+        ref_long_side = 512 if len(ref_imgs) <= 1 else 320
         ref_imgs = [preprocess_ref(img, ref_long_side) for img in ref_imgs]
 
         seed = seed if seed != -1 else torch.randint(0, 10 ** 8, (1,)).item()
@@ -246,7 +243,6 @@ class UNOPipeline:
         guidance: float,
         num_steps: int,
         seed: int,
-        neg_prompt: str = "",
         ref_imgs: list[Image.Image] | None = None,
         pe: Literal['d', 'h', 'w', 'o'] = 'd',
     ):
@@ -277,11 +273,6 @@ class UNOPipeline:
             img=x,
             prompt=prompt, ref_imgs=x_1_refs, pe=pe
         )
-        neg_inp_cond = prepare_multi_ip(
-            t5=self.t5, clip=self.clip,
-            img=x,
-            prompt=neg_prompt, ref_imgs=x_1_refs, pe=pe
-        )
 
         if self.offload:
             self.offload_model_to_cpu(self.t5, self.clip)
@@ -292,9 +283,6 @@ class UNOPipeline:
             **inp_cond,
             timesteps=timesteps,
             guidance=guidance,
-            neg_txt=neg_inp_cond['txt'],
-            neg_txt_ids=neg_inp_cond['txt_ids'],
-            neg_vec=neg_inp_cond['vec'],
         )
 
         if self.offload:
