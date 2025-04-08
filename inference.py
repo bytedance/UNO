@@ -50,10 +50,10 @@ class InferenceArgs:
     model_type: Literal["flux-dev", "flux-dev-fp8", "flux-schnell"] = "flux-dev"
     width: int = 512
     height: int = 512
-    ref_size: int = 512
+    ref_size: int = -1
     num_steps: int = 25
     guidance: float = 4
-    seed: int = 42
+    seed: int = 3407
     save_path: str = "output/inference"
     only_lora: bool = True
     concat_refs: bool = False
@@ -88,9 +88,12 @@ def main(args: InferenceArgs):
             continue
 
         ref_imgs = [
-            Image.open(os.path.join(data_root, img_path)).convert("RGB")
+            Image.open(os.path.join(data_root, img_path))
             for img_path in data_dict["image_paths"]
         ]
+        if args.ref_size==-1:
+            args.ref_size = 512 if len(ref_imgs)==1 else 320
+
         ref_imgs = [preprocess_ref(img, args.ref_size) for img in ref_imgs]
 
         image_gen = pipeline(
@@ -108,6 +111,13 @@ def main(args: InferenceArgs):
 
         os.makedirs(args.save_path, exist_ok=True)
         image_gen.save(os.path.join(args.save_path, f"{i}_{j}.png"))
+
+        # save config and image
+        args_dict = vars(args)
+        args_dict['prompt'] = data_dict["prompt"]
+        args_dict['image_paths'] = data_dict["image_paths"]
+        with open(os.path.join(args.save_path, f"{i}_{j}.json"), 'w') as f:
+            json.dump(args_dict, f, indent=4)        
 
 if __name__ == "__main__":
     parser = HfArgumentParser([InferenceArgs])

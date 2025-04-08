@@ -176,3 +176,8 @@ cython_debug/
 # User config files
 .vscode/
 output/
+
+# ckpt
+*.bin
+*.pt
+*.pth

@@ -1,0 +1,22 @@
+{
+    "prompt": "A clock on the beach is under a red sun umbrella",
+    "image_paths": [
+        "assets/clock.png"
+    ],
+    "eval_json_path": null,
+    "offload": false,
+    "num_images_per_prompt": 1,
+    "model_type": "flux-dev",
+    "width": 704,
+    "height": 704,
+    "ref_size": 512,
+    "num_steps": 25,
+    "guidance": 4,
+    "seed": 3407,
+    "save_path": "output/inference",
+    "only_lora": true,
+    "concat_refs": false,
+    "lora_rank": 512,
+    "data_resolution": 512,
+    "pe": "d"
+}

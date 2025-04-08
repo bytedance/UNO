@@ -19,8 +19,8 @@ class="center">
 </p>
 
 ## 🔥 News
-- [04/2025] 🔥 Release the huggingface space [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX).
-- [04/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released. The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) will coming soon.
+- [04/2025] 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
+- [04/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
 - [04/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created.
 - [04/2025] 🔥 The arXiv [paper](https://arxiv.org/abs/2504.02160) of UNO is released.
 
@@ -54,17 +54,28 @@ python app.py
 
 
 ### ✍️ Inference
+Start from the examples below to explore and spark your creativity. ✨
+```bash
+python inference.py --prompt "A clock on the beach is under a red sun umbrella" --image_paths "assets/clock.png" --width 704 --height 704
+python inference.py --prompt "The figurine is in the crystal ball" --image_paths "assets/figurine.png" "assets/crystal_ball.png" --width 704 --height 704
+python inference.py --prompt "The logo is printed on the cup" --image_paths "assets/cat_cafe.png" "assets/cup.png" --width 704 --height 704
+```
 
-- Optional prepreration: If you want to test the inference on dreambench at the first time, you should clone the submodule `dreambench` to download the dataset.
+Optional prepreration: If you want to test the inference on dreambench at the first time, you should clone the submodule `dreambench` to download the dataset.
 
 ```bash
 git submodule update --init
 ```
-
-
+Then running the following scripts:
 ```bash
-python inference.py
+# evaluated on dreambench
+## for single-subject
+python inference.py --eval_json_path ./datasets/dreambench_singleip.json
+## for multi-subject
+python inference.py --eval_json_path ./datasets/dreambench_multiip.json
 ```
+
+
 
 ### 🚄 Training
 
@@ -72,9 +83,15 @@ python inference.py
 accelerate launch train.py
 ```
 
+
+### 📌 Tips and Notes
+We integrate single-subject and multi-subject generation within a unified model. For single-subject scenarios, the longest side of the reference image is set to 512 by default, while for multi-subject scenarios, it is set to 320. UNO demonstrates remarkable flexibility across various aspect ratios, thanks to its training on a multi-scale dataset. Despite being trained within 512 buckets, it can handle higher resolutions, including 512, 568, and 704, among others.
+
+UNO excels in subject-driven generation but has room for improvement in generalization due to dataset constraints. We are actively developing an enhanced model—stay tuned for updates. Your feedback is valuable, so please feel free to share any suggestions.
+
 ## 🎨 Application Scenarios
 <p align="center">
-<img src="./assets/simplecase.jpeg" width=95% height=95% 
+<img src="./assets/simplecase.jpg" width=95% height=95% 
 class="center">
 </p>
 
@@ -105,13 +122,10 @@ If UNO is helpful, please help to ⭐ the repo.
 
 If you find this project useful for your research, please consider citing our paper:
 ```bibtex
-@misc{wu2025lesstomoregeneralizationunlockingcontrollability,
-      title={Less-to-More Generalization: Unlocking More Controllability by In-Context Generation}, 
-      author={Shaojin Wu and Mengqi Huang and Wenxu Wu and Yufeng Cheng and Fei Ding and Qian He},
-      year={2025},
-      eprint={2504.02160},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2504.02160}, 
+@article{wu2025less,
+  title={Less-to-More Generalization: Unlocking More Controllability by In-Context Generation},
+  author={Wu, Shaojin and Huang, Mengqi and Wu, Wenxu and Cheng, Yufeng and Ding, Fei and He, Qian},
+  journal={arXiv preprint arXiv:2504.02160},
+  year={2025}
 }
 ```

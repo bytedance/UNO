@@ -271,7 +271,11 @@ def load_flow_model_only_lora(
         ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_flow.replace("sft", "safetensors"))
     
     if hf_download:
-        lora_ckpt_path = hf_hub_download("bytedance-research/UNO", "dit_lora.safetensors")
+        # lora_ckpt_path = hf_hub_download("bytedance-research/UNO", "dit_lora.safetensors")
+        try:
+            lora_ckpt_path = hf_hub_download("bytedance-research/UNO", "dit_lora.safetensors")
+        except:
+            lora_ckpt_path = os.environ.get("LORA", None)
     else:
         lora_ckpt_path = os.environ.get("LORA", None)
 

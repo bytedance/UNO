@@ -221,8 +221,6 @@ def denoise(
     # sampling parameters
     timesteps: list[float],
     guidance: float = 4.0,
-    true_gs = 1,
-    timestep_to_start_cfg=0,
     ref_img: Tensor=None,
     ref_img_ids: Tensor=None,
 ):
@@ -241,20 +239,6 @@ def denoise(
             timesteps=t_vec,
             guidance=guidance_vec
         )
-        if i >= timestep_to_start_cfg:
-            # not test
-            neg_pred = model(
-                img=img,
-                img_ids=img_ids,
-                ref_img=ref_img, # TODO: neg img embedding
-                ref_img_ids=ref_img_ids,
-                txt=neg_txt,
-                txt_ids=neg_txt_ids,
-                y=neg_vec,
-                timesteps=t_vec,
-                guidance=guidance_vec,
-            )
-            pred = neg_pred + true_gs * (pred - neg_pred)
         img = img + (t_prev - t_curr) * pred
         i += 1
     return img

@@ -185,10 +185,8 @@ class UNOPipeline:
         guidance: float = 4,
         num_steps: int = 50,
         seed: int = 123456789,
-        true_gs: float = 3,
         neg_prompt: str = '',
         neg_image_prompt: Image = None,
-        timestep_to_start_cfg: int = 0,
         **kwargs
     ):
         width = 16 * (width // 16)
@@ -201,8 +199,6 @@ class UNOPipeline:
             guidance,
             num_steps,
             seed,
-            timestep_to_start_cfg=timestep_to_start_cfg,
-            true_gs=true_gs,
             neg_prompt=neg_prompt,
             **kwargs
         )
@@ -250,8 +246,6 @@ class UNOPipeline:
         guidance: float,
         num_steps: int,
         seed: int,
-        timestep_to_start_cfg: int = 1e5,  # TODO 没用，删除
-        true_gs: float = 3.5,
         neg_prompt: str = "",
         ref_imgs: list[Image.Image] | None = None,
         pe: Literal['d', 'h', 'w', 'o'] = 'd',
@@ -298,11 +292,9 @@ class UNOPipeline:
             **inp_cond,
             timesteps=timesteps,
             guidance=guidance,
-            timestep_to_start_cfg=timestep_to_start_cfg,
             neg_txt=neg_inp_cond['txt'],
             neg_txt_ids=neg_inp_cond['txt_ids'],
             neg_vec=neg_inp_cond['vec'],
-            true_gs=true_gs,
         )
 
         if self.offload:
