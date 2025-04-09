@@ -114,7 +114,7 @@ For the purpose of fostering research and the open-source community, we plan to 
 - [x] Release training code.
 - [x] Release model checkpoints.
 - [x] Release arXiv paper.
-- [x] Release huggingface sapce demo.
+- [x] Release huggingface space demo.
 - [ ] Release in-context data generation pipelines.
 
 ##  Citation
