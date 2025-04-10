@@ -113,11 +113,13 @@ class UNOPipeline:
         self.clip = load_clip(self.device)
         self.t5 = load_t5(self.device, max_length=512)
         self.ae = load_ae(model_type, device="cpu" if offload else self.device)
-        if "fp8" in model_type:
-            self.model = load_flow_model_quintized(model_type, device="cpu" if offload else self.device)
-        elif only_lora:
+        self.use_fp8 = "fp8" in model_type
+        if only_lora:
             self.model = load_flow_model_only_lora(
-                model_type, device="cpu" if offload else self.device, lora_rank=lora_rank
+                model_type,
+                device="cpu" if offload else self.device,
+                lora_rank=lora_rank,
+                use_fp8=self.use_fp8
             )
         else:
             self.model = load_flow_model(model_type, device="cpu" if offload else self.device)
@@ -190,15 +192,17 @@ class UNOPipeline:
         width = 16 * (width // 16)
         height = 16 * (height // 16)
 
-        return self.forward(
-            prompt,
-            width,
-            height,
-            guidance,
-            num_steps,
-            seed,
-            **kwargs
-        )
+        device_type = self.device if isinstance(self.device, str) else self.device.type
+        with torch.autocast(enabled=self.use_fp8, device_type=device_type, dtype=torch.bfloat16):
+            return self.forward(
+                prompt,
+                width,
+                height,
+                guidance,
+                num_steps,
+                seed,
+                **kwargs
+            )
 
     @torch.inference_mode()
     def gradio_generate(
@@ -266,7 +270,7 @@ class UNOPipeline:
         ]
 
         if self.offload:
-            self.ae.encoder = self.offload_model_to_cpu(self.ae.encoder)
+            self.offload_model_to_cpu(self.ae.encoder)
             self.t5, self.clip = self.t5.to(self.device), self.clip.to(self.device)
         inp_cond = prepare_multi_ip(
             t5=self.t5, clip=self.clip,

@@ -84,7 +84,7 @@ class RMSNorm(torch.nn.Module):
         x_dtype = x.dtype
         x = x.float()
         rrms = torch.rsqrt(torch.mean(x**2, dim=-1, keepdim=True) + 1e-6)
-        return (x * rrms).to(dtype=x_dtype) * self.scale
+        return ((x * rrms) * self.scale.float()).to(dtype=x_dtype)
 
 
 class QKNorm(torch.nn.Module):

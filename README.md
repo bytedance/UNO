@@ -19,6 +19,7 @@ class="center">
 </p>
 
 ## 🔥 News
+- [04/2025] 🔥 Update fp8 mode as a primary low vmemory usage support. Gift for consumer-grade GPU users. The peak Vmemory usage is ~16GB now. We may try further inference optimization later.
 - [04/2025] 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
 - [04/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
 - [04/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created.
@@ -44,12 +45,18 @@ pip install -r requirements.txt
 then download checkpoints in one of the three ways:
 1. Directly run the inference scripts, the checkpoints will be downloaded automatically by the `hf_hub_download` function in the code to your `$HF_HOME`(the default value is `~/.cache/huggingface`).
 2. use `huggingface-cli download <repo name>` to download `black-forest-labs/FLUX.1-dev`, `xlabs-ai/xflux_text_encoders`, `openai/clip-vit-large-patch14`, `bytedance-research/UNO`, then run the inference scripts.
-3. use `huggingface-cli download <repo name> --local-dir <LOCAL_DIR>` to download all the checkpoints menthioned in 2. to the directories your want. Then set the environment variable `AE`, `FLUX`, `T5`, `CLIP`, `LORA` to the corresponding paths. Finally, run the inference scripts.
+3. use `huggingface-cli download <repo name> --local-dir <LOCAL_DIR>` to download all the checkpoints mentioned in 2. to the directories your want. Then set the environment variable `AE`, `FLUX`, `T5`, `CLIP`, `LORA` to the corresponding paths. Finally, run the inference scripts.
 
 ### 🌟 Gradio Demo
 
 ```bash
 python app.py
+```
+
+**For low vmemory usage**, please pass the `--offload` and `--name flux-dev-fp8` args. The peak memory usage will be ~16GB. generate a image on 3090
+
+```bash
+python app --offload --name flux-dev-fp8
 ```
 
 
@@ -116,6 +123,10 @@ For the purpose of fostering research and the open-source community, we plan to 
 - [x] Release arXiv paper.
 - [x] Release huggingface space demo.
 - [ ] Release in-context data generation pipelines.
+
+## Related resources
+
+- [https://github.com/jax-explorer/ComfyUI-UNO](https://github.com/jax-explorer/ComfyUI-UNO) a ComfyUI node implementation of UNO by jax-explorer.
 
 ##  Citation
 If UNO is helpful, please help to ⭐ the repo.

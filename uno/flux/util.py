@@ -147,9 +147,9 @@ configs = {
         ),
     ),
     "flux-dev-fp8": ModelSpec(
-        repo_id="XLabs-AI/flux-dev-fp8",
+        repo_id="black-forest-labs/FLUX.1-dev",
         repo_id_ae="black-forest-labs/FLUX.1-dev",
-        repo_flow="flux-dev-fp8.safetensors",
+        repo_flow="flux1-dev.safetensors",
         repo_ae="ae.safetensors",
         ckpt_path=os.getenv("FLUX_DEV_FP8"),
         params=FluxParams(
@@ -257,7 +257,8 @@ def load_flow_model_only_lora(
     name: str,
     device: str | torch.device = "cuda",
     hf_download: bool = True,
-    lora_rank: int = 16
+    lora_rank: int = 16,
+    use_fp8: bool = False
 ):
     # Loading Flux
     print("Init model")
@@ -271,7 +272,6 @@ def load_flow_model_only_lora(
         ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_flow.replace("sft", "safetensors"))
     
     if hf_download:
-        # lora_ckpt_path = hf_hub_download("bytedance-research/UNO", "dit_lora.safetensors")
         try:
             lora_ckpt_path = hf_hub_download("bytedance-research/UNO", "dit_lora.safetensors")
         except:
@@ -294,7 +294,19 @@ def load_flow_model_only_lora(
         # load_sft doesn't support torch.device
 
         if ckpt_path.endswith('safetensors'):
-            sd = load_sft(ckpt_path, device=str(device))
+            if use_fp8:
+                print(
+                    "####\n"
+                    "We are in fp8 mode right now, since the fp8 checkpoint of XLabs-AI/flux-dev-fp8 seems broken\n"
+                    "we convert the fp8 checkpoint on flight from bf16 checkpoint\n"
+                    "If your storage is constrained"
+                    "you can save the fp8 checkpoint and replace the bf16 checkpoint by yourself\n"
+                )
+                sd = load_sft(ckpt_path, device="cpu")
+                sd = {k: v.to(dtype=torch.float8_e4m3fn, device=device) for k, v in sd.items()}
+            else:
+                sd = load_sft(ckpt_path, device=str(device))
+            
             sd.update(lora_sd)
             missing, unexpected = model.load_state_dict(sd, strict=False, assign=True)
         else:
@@ -349,7 +361,7 @@ def load_flow_model_quintized(name: str, device: str | torch.device = "cuda", hf
         and hf_download
     ):
         ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_flow)
-    json_path = hf_hub_download(configs[name].repo_id, 'flux_dev_quantization_map.json')
+    # json_path = hf_hub_download(configs[name].repo_id, 'flux_dev_quantization_map.json')
 
 
     model = Flux(configs[name].params).to(torch.bfloat16)
@@ -357,6 +369,9 @@ def load_flow_model_quintized(name: str, device: str | torch.device = "cuda", hf
     print("Loading checkpoint")
     # load_sft doesn't support torch.device
     sd = load_sft(ckpt_path, device='cpu')
+    sd = {k: v.to(dtype=torch.float8_e4m3fn, device=device) for k, v in sd.items()}
+    model.load_state_dict(sd, assign=True)
+    return model
     with open(json_path, "r") as f:
         quantization_map = json.load(f)
     print("Start a quantization process...")
