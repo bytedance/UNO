@@ -20,11 +20,12 @@ class="center">
 </p>
 
 ## 🔥 News
-- [04/2025] 🔥 Update fp8 mode as a primary low vmemory usage support. Gift for consumer-grade GPU users. The peak Vmemory usage is ~16GB now. We may try further inference optimization later.
-- [04/2025] 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
-- [04/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
-- [04/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created.
-- [04/2025] 🔥 The arXiv [paper](https://arxiv.org/abs/2504.02160) of UNO is released.
+- [04/16/2024] 🔥 Our companion project [RealCustom](https://github.com/bytedance/RealCustom) is released.
+- [04/10/2025] 🔥 Update fp8 mode as a primary low vmemory usage support. Gift for consumer-grade GPU users. The peak Vmemory usage is ~16GB now. We may try further inference optimization later.
+- [04/03/2025] 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
+- [04/03/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
+- [04/02/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created.
+- [04/02/2025] 🔥 The arXiv [paper](https://arxiv.org/abs/2504.02160) of UNO is released.
 
 ## 📖 Introduction
 In this study, we propose a highly-consistent data synthesis pipeline to tackle this challenge. This pipeline harnesses the intrinsic in-context generation capabilities of diffusion transformers and generates high-consistency multi-subject paired data. Additionally, we introduce UNO, which consists of progressive cross-modal alignment and universal rotary position embedding. It is a multi-image conditioned subject-to-image model iteratively trained from a text-to-image model. Extensive experiments show that our method can achieve high consistency while ensuring controllability in both single-subject and multi-subject driven generation.
@@ -128,7 +129,15 @@ For the purpose of fostering research and the open-source community, we plan to 
 
 ## Related resources
 
-- [https://github.com/jax-explorer/ComfyUI-UNO](https://github.com/jax-explorer/ComfyUI-UNO) a ComfyUI node implementation of UNO by jax-explorer.
+**ComfyUI**
+
+- https://github.com/jax-explorer/ComfyUI-UNO a ComfyUI node implementation of UNO by jax-explorer.
+- https://github.com/HM-RunningHub/ComfyUI_RH_UNO a ComfyUI node implementation of UNO by HM-RunningHub.
+- https://github.com/ShmuelRonen/ComfyUI-UNO-Wrapper a ComfyUI node implementation of UNO by ShmuelRonen.
+- https://github.com/Yuan-ManX/ComfyUI-UNO a ComfyUI node implementation of UNO by Yuan-ManX.
+- https://github.com/QijiTec/ComfyUI-RED-UNO a ComfyUI node implementation of UNO by QijiTec.
+
+We thanks the passionate community contributors, since we have reviced many requests about comfyui, but there aren't so much time to make so many adaptations by ourselves. if you wanna try our work in comfyui, you can try the above repos. Remember, they are slightly different, so you may need some trail and error to make find the best match repo for you.
 
 ##  Citation
 If UNO is helpful, please help to ⭐ the repo.

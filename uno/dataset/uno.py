@@ -19,8 +19,10 @@ import os
 import numpy as np
 import torch
 import torchvision.transforms.functional as TVF
+from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms import Compose, Normalize, ToTensor
+
 
 def bucket_images(images: list[torch.Tensor], resolution: int = 512):
     bucket_override=[
@@ -76,6 +78,7 @@ class FluxPairedDatasetV2(Dataset):
         image_paths = [data_dict["image_path"]] if "image_path" in data_dict else data_dict["image_paths"]
         txt = data_dict["prompt"]
         image_tgt_path = data_dict.get("image_tgt_path", None)
+        # image_tgt_path = data_dict.get("image_paths", None)[0]  # TODO: for debugging delete it when release paired data pipeline
         ref_imgs = [
             Image.open(os.path.join(self.image_root, path)).convert("RGB")
             for path in image_paths

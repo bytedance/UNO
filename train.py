@@ -85,26 +85,12 @@ def inference(
             ref_imgs=ref_imgs,
             pe=pe
         )
-        neg_inp_cond = prepare_multi_ip(
-            t5=t5, clip=clip, img=x, prompt=neg_prompt,
-            ref_imgs=ref_imgs,
-            pe=pe
-        )
 
         x = denoise(
             model,
             **inp_cond,
             timesteps=timesteps,
             guidance=4,
-            timestep_to_start_cfg=30,
-            neg_txt=neg_inp_cond['txt'],
-            neg_txt_ids=neg_inp_cond['txt_ids'],
-            neg_vec=neg_inp_cond['vec'],
-            true_gs=3.5,
-            image_proj=None,
-            neg_image_proj=None,
-            ip_scale=1,
-            neg_ip_scale=1
         )
 
         x = unpack(x.float(), height, width)
@@ -166,13 +152,13 @@ class TrainArgs:
     ## accelerator
     project_dir: str | None = None
     mixed_precision: Literal["no", "fp16", "bf16"] = "bf16"
-    gradient_accumulation_steps: int = 1,
+    gradient_accumulation_steps: int = 1
     seed: int = 42
     wandb_project_name: str | None = None
     wandb_run_name: str | None = None
 
     ## model
-    model_name: Literal["flux", "flux-schnell"] = "flux"
+    model_name: Literal["flux-dev", "flux-schnell"] = "flux-dev"
     lora_rank: int = 512
     double_blocks_indices: list[int] | None = dataclasses.field(
         default=None,
@@ -182,10 +168,8 @@ class TrainArgs:
         default=None,
         metadata={"help": "Indices of double blocks to apply LoRA. None means all single blocks."}
     )
-    pe: Literal["d", "h", "w", "o"] = "d",
-    gradient_checkpoint: bool = False
-
-    ## ema
+    pe: Literal["d", "h", "w", "o"] = "d"
+    gradient_checkpoint: bool = True
     ema: bool = False
     ema_interval: int = 1
     ema_decay: float = 0.99
@@ -196,6 +180,7 @@ class TrainArgs:
     adam_betas: list[float] = dataclasses.field(default_factory=lambda: [0.9, 0.999])
     adam_eps: float = 1e-8
     adam_weight_decay: float = 0.01
+    max_grad_norm: float = 1.0
 
     ## lr_scheduler
     lr_scheduler: str = "constant"
@@ -292,28 +277,37 @@ def main(
 
     # dataloader
     dataset = FluxPairedDatasetV2(
-        data_json=args.train_data_json,
+        json_file=args.train_data_json,
         resolution=args.resolution, resolution_ref=args.resolution_ref
     )
-    dataloader = DataLoader(dataset, batch_size=args.batch_size, shuffle=True)
+    dataloader = DataLoader(
+        dataset,
+        batch_size=args.batch_size,
+        shuffle=True,
+        collate_fn=dataset.collate_fn
+    )
     eval_dataset = FluxPairedDatasetV2(
-        data_json=args.eval_data_json,
+        json_file=args.eval_data_json,
         resolution=args.resolution, resolution_ref=args.resolution_ref
     )   
-    eval_dataloader = DataLoader(eval_dataset, batch_size=args.eval_batch_size, shuffle=False)
+    eval_dataloader = DataLoader(
+        eval_dataset,
+        batch_size=args.eval_batch_size,
+        shuffle=False,
+        collate_fn=eval_dataset.collate_fn
+    )
 
     dataloader = accelerator.prepare_data_loader(dataloader)
     eval_dataloader = accelerator.prepare_data_loader(eval_dataloader)
     dataloader = itertools.cycle(dataloader)  # as infinite fetch data loader
 
     ## parallel
-    dit = accelerator.prepare_model(dit)
-    optimizer = accelerator.prepare_optimizer(optimizer)
-    lr_scheduler = accelerator.prepare_scheduler(lr_scheduler)
+    accelerator.state.select_deepspeed_plugin("dit")
+    dit, optimizer, lr_scheduler = accelerator.prepare(dit, optimizer, lr_scheduler) 
     accelerator.state.select_deepspeed_plugin("t5")
-    t5 = accelerator.prepare_model(t5)
+    t5 = accelerator.prepare(t5)  # type: torch.nn.Module
     accelerator.state.select_deepspeed_plugin("clip")
-    clip = accelerator.prepare_model(clip)
+    clip = accelerator.prepare(clip)  # type: torch.nn.Module
     
     ## ema
     dit_ema_dict = {
@@ -399,7 +393,7 @@ def main(
             loss = F.mse_loss(model_pred.float(), (x_0 - x_1).float(), reduction="mean")
 
             # Gather the losses across all processes for logging (if we use distributed training).
-            avg_loss = accelerator.gather(loss.repeat(args.train_batch_size)).mean()
+            avg_loss = accelerator.gather(loss.repeat(args.batch_size)).mean()
             train_loss += avg_loss.item() / args.gradient_accumulation_steps
 
             # Backpropagate
