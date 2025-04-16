@@ -37,11 +37,20 @@ In this study, we propose a highly-consistent data synthesis pipeline to tackle 
 
 Install the requirements
 ```bash
+# pip install -r requirements.txt # legacy installation command
+
 ## create a virtual environment with python >= 3.10 <= 3.12, like
 # python -m venv uno_env
 # source uno_env/bin/activate
-# then install
-pip install -r requirements.txt
+# or
+# conda create -n uno_env python=3.10 -y
+# conda activate uno_env
+# then install the requirements by you need
+
+# !!! if you are using amd GPU/NV RTX50 series/macos MPS, you should install the correct torch version by yourself first
+# !!! then run the install command
+pip install -e .  # for who wanna to run the demo/inference only
+pip install -e .[train]  # for who also want to train the model
 ```
 
 then download checkpoints in one of the three ways:

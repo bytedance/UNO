@@ -134,7 +134,11 @@ if __name__ == "__main__":
     @dataclasses.dataclass
     class AppArgs:
         name: Literal["flux-dev", "flux-dev-fp8", "flux-schnell"] = "flux-dev"
-        device: Literal["cuda", "cpu"] = "cuda" if torch.cuda.is_available() else "cpu"
+        device: Literal["cuda", "cpu"] = (
+            "cuda" if torch.cuda.is_available() \
+            else "mps" if torch.backends.mps.is_available() \
+            else "cpu"
+        )
         offload: bool = dataclasses.field(
             default=False,
             metadata={"help": "If True, sequantial offload the models(ae, dit, text encoder) to CPU if not used."}

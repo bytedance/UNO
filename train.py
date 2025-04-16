@@ -188,7 +188,8 @@ class TrainArgs:
     max_train_steps: int = 100000
 
     ## dataloader
-    train_data_json: str = "datasets/dreambench_singleip.json" # TODO: change to your own dataset, or use one data syenthsize pipeline comming in the future. stay tuned 
+    # TODO: change to your own dataset, or use one data syenthsize pipeline comming in the future. stay tuned
+    train_data_json: str = "datasets/dreambench_singleip.json"
     batch_size: int = 1
     text_dropout: float = 0.1
     resolution: int = 512

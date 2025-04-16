@@ -193,6 +193,8 @@ class UNOPipeline:
         height = 16 * (height // 16)
 
         device_type = self.device if isinstance(self.device, str) else self.device.type
+        if device_type == "mps":
+            device_type = "cpu"  # for support macos mps
         with torch.autocast(enabled=self.use_fp8, device_type=device_type, dtype=torch.bfloat16):
             return self.forward(
                 prompt,

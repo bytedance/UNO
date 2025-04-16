@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "uno"
+version = "0.0.1"
+authors = [
+  { name="Bytedance Ltd. and/or its affiliates" },
+]
+maintainers = [
+  {name = "Wu Shaojin", email = "wushaojin@bytedance.com"},
+  {name = "Huang Mengqi", email = "huangmengqi.98@bytedance.com"},
+  {name = "Wu Wenxu", email = "wuwenxu.01@bytedance.com"},
+  {name = "Cheng Yufeng", email = "chengyufeng.cb1@bytedance.com"},
+]
+
+description = "🔥🔥 UNO: A Universal Customization Method for Both Single and Multi-Subject Conditioning"
+readme = "README.md"
+requires-python = ">=3.10, <=3.12"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+
+
+dependencies = [
+    "torch>=2.4.0",
+    "torchvision>=0.19.0",
+    "einops>=0.8.0",
+    "transformers>=4.43.3",
+    "huggingface-hub",
+    "diffusers>=0.30.1",
+    "sentencepiece==0.2.0",
+    "gradio>=5.22.0",
+]
+
+[project.optional-dependencies]
+
+train = [
+    "accelerate==1.1.1",
+    "deepspeed==0.14.4",
+]
+
+dev = [
+    "ruff",
+]
+
+
+[project.urls]
+Repository = "https://github.com/bytedance/UNO"
+ProjectPage = "https://bytedance.github.io/UNO"
+Models = "https://huggingface.co/bytedance-research/UNO"
+Demo = "https://huggingface.co/spaces/bytedance-research/UNO-FLUX"
+Arxiv = "https://arxiv.org/abs/2504.02160"
+
+
+[tool.setuptools.packages.find]
+where = [""]
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+[tool.ruff]
+include = ["uno/**/*.py"]
+line-length = 120
+indent-width = 4
+target-version = "py310"
+show-fixes = true
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
