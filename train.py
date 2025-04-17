@@ -108,13 +108,11 @@ def resume_from_checkpoint(
     project_dir: str,
     accelerator: Accelerator,
     dit: "Flux",
-    optimizer: torch.optim.Optimizer,
-    lr_scheduler: torch.optim.lr_scheduler.LRScheduler,
     dit_ema_dict: dict | None = None,
 ) -> tuple["Flux", torch.optim.Optimizer, torch.optim.lr_scheduler.LRScheduler, dict | None, int]:
     # Potentially load in the weights and states from a previous save
     if resume_from_checkpoint is None:
-        return dit, optimizer, lr_scheduler, dit_ema_dict, 0
+        return dit, dit_ema_dict, 0
 
     if resume_from_checkpoint == "latest":
         # Get the most recent checkpoint
@@ -125,27 +123,30 @@ def resume_from_checkpoint(
             accelerator.print(
                 f"Checkpoint '{resume_from_checkpoint}' does not exist. Starting a new training run."
             )
-            return dit, optimizer, lr_scheduler, dit_ema_dict, 0
+            return dit, dit_ema_dict, 0
         path = dirs[-1]
     else:
         path = os.path.basename(resume_from_checkpoint)
         
 
     accelerator.print(f"Resuming from checkpoint {path}")
-    lora_state = load_file(os.path.join(project_dir, path, 'dit_lora.safetensors'), device=accelerator.device)
+    lora_state = load_file(
+        os.path.join(project_dir, path, 'dit_lora.safetensors'),
+        device=accelerator.device.__str__()
+    )
     unwarp_dit = accelerator.unwrap_model(dit)
     unwarp_dit.load_state_dict(lora_state, strict=False)
     if dit_ema_dict is not None:
         dit_ema_dict = load_file(
             os.path.join(project_dir, path, 'dit_lora_ema.safetensors'),
-            device=accelerator.device
+            device=accelerator.device.__str__()
         )
         if dit is not unwarp_dit:
             dit_ema_dict = {f"module.{k}": v for k, v in dit_ema_dict.items() if k in unwarp_dit.state_dict()}
 
     global_step = int(path.split("-")[1])
     
-    return dit, optimizer, lr_scheduler, dit_ema_dict, global_step
+    return dit, dit_ema_dict, global_step
 
 @dataclasses.dataclass
 class TrainArgs:
@@ -260,6 +261,11 @@ def main(
     dit.train()
     dit.gradient_checkpointing = args.gradient_checkpoint
 
+    ## ema
+    dit_ema_dict = {
+        f"module.{k}": deepcopy(v).requires_grad_(False) for k, v in dit.named_parameters() if v.requires_grad
+    } if args.ema else None
+
     ## optimizer and lr scheduler
     optimizer = torch.optim.AdamW(
         [p for p in dit.parameters() if p.requires_grad],
@@ -274,6 +280,19 @@ def main(
         optimizer=optimizer,
         num_warmup_steps=args.lr_warmup_steps * accelerator.num_processes,
         num_training_steps=args.max_train_steps * accelerator.num_processes,
+    )
+
+    ## resume
+    (
+        dit,
+        dit_ema_dict,
+        global_step
+    ) = resume_from_checkpoint(
+        args.resume_from_checkpoint,
+        project_dir=args.project_dir,
+        accelerator=accelerator,
+        dit=dit,
+        dit_ema_dict=dit_ema_dict
     )
 
     # dataloader
@@ -309,28 +328,6 @@ def main(
     t5 = accelerator.prepare(t5)  # type: torch.nn.Module
     accelerator.state.select_deepspeed_plugin("clip")
     clip = accelerator.prepare(clip)  # type: torch.nn.Module
-    
-    ## ema
-    dit_ema_dict = {
-        k: deepcopy(v).requires_grad_(False) for k, v in dit.named_parameters() if v.requires_grad
-    } if args.ema else None
-
-    ## resume
-    (
-        dit,
-        optimizer,
-        lr_scheduler,
-        dit_ema_dict,
-        global_step
-    ) = resume_from_checkpoint(
-        args.resume_from_checkpoint,
-        project_dir=args.project_dir,
-        accelerator=accelerator,
-        dit=dit,
-        optimizer=optimizer,
-        lr_scheduler=lr_scheduler,
-        dit_ema_dict=dit_ema_dict
-    )
 
     ## noise scheduler
     timesteps = get_schedule(
@@ -426,7 +423,8 @@ def main(
             accelerator.wait_for_everyone()
             unwrapped_model = accelerator.unwrap_model(dit)
             unwrapped_model_state = unwrapped_model.state_dict()
-            unwrapped_model_state = {k: v for k, v in unwrapped_model_state.items() if v.requires_grad}
+            requires_grad_key = [k for k, v in unwrapped_model.named_parameters() if v.requires_grad]
+            unwrapped_model_state = {k: unwrapped_model_state[k] for k in requires_grad_key}
 
             accelerator.save(
                 unwrapped_model_state,
@@ -440,7 +438,8 @@ def main(
             if args.ema:
                 accelerator.save(
                     {k.split("module.")[-1]: v for k, v in dit_ema_dict.items()},
-                    os.path.join(save_path, 'dit_lora_ema.safetensors')
+                    os.path.join(save_path, 'dit_lora_ema.safetensors'),
+                    safe_serialization=True
                 )
 
             # validate
