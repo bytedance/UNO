@@ -20,7 +20,7 @@ class="center">
 </p>
 
 ## 🔥 News
-- [04/16/2024] 🔥 Our companion project [RealCustom](https://github.com/bytedance/RealCustom) is released.
+- [04/16/2025] 🔥 Our companion project [RealCustom](https://github.com/bytedance/RealCustom) is released.
 - [04/10/2025] 🔥 Update fp8 mode as a primary low vmemory usage support. Gift for consumer-grade GPU users. The peak Vmemory usage is ~16GB now. We may try further inference optimization later.
 - [04/03/2025] 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
 - [04/03/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
