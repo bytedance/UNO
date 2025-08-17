@@ -1,26 +1,28 @@
 <h3 align="center">
     <img src="assets/logo.png" alt="Logo" style="vertical-align: middle; width: 40px; height: 40px;">
-    Less-to-More Generalization: Unlocking More Controllability by In-Context Generation
+    Less-to-More Generalization: </br>Unlocking More Controllability by In-Context Generation
 </h3>
 
 <p align="center"> 
 <a href="https://github.com/bytedance/UNO"><img alt="Build" src="https://img.shields.io/github/stars/bytedance/UNO"></a> 
-<a href="https://bytedance.github.io/UNO/"><img alt="Build" src="https://img.shields.io/badge/Project%20Page-UNO-yellow"></a> 
+<a href="https://bytedance.github.io/UNO/"><img alt="Build" src="https://img.shields.io/badge/Project%20Page-UNO-blue"></a> 
 <a href="https://arxiv.org/abs/2504.02160"><img alt="Build" src="https://img.shields.io/badge/arXiv%20paper-UNO-b31b1b.svg"></a>
-<a href="https://huggingface.co/bytedance-research/UNO"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=Model&color=orange"></a>
+<a href="https://huggingface.co/bytedance-research/UNO"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=Model&color=green"></a>
+<a href="https://huggingface.co/datasets/bytedance-research/UNO-1M"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=Dataset&color=yellow"></a>
 <a href="https://huggingface.co/spaces/bytedance-research/UNO-FLUX"><img src="https://img.shields.io/static/v1?label=%F0%9F%A4%97%20Hugging%20Face&message=demo&color=orange"></a>
 </p>
 
 ><p align="center"> <span style="color:#137cf3; font-family: Gill Sans">Shaojin Wu,</span><sup></sup></a>  <span style="color:#137cf3; font-family: Gill Sans">Mengqi Huang</span><sup>*</sup>,</a> <span style="color:#137cf3; font-family: Gill Sans">Wenxu Wu,</span><sup></sup></a>  <span style="color:#137cf3; font-family: Gill Sans">Yufeng Cheng,</span><sup></sup> </a>  <span style="color:#137cf3; font-family: Gill Sans">Fei Ding</span><sup>+</sup>,</a> <span style="color:#137cf3; font-family: Gill Sans">Qian He</span></a> <br> 
 ><span style="font-size: 16px">Intelligent Creation Team, ByteDance</span></p>
 
-<p align="center">
-<img src="./assets/teaser.jpg" width=95% height=95% 
-class="center">
-</p>
-
 ## 🔥 News
-- [04/16/2024] 🔥 Our companion project [RealCustom](https://github.com/bytedance/RealCustom) is released.
+- [08/18/2024] ✨ We open-sourced the [UNO-1M](https://huggingface.co/datasets/bytedance-research/UNO-1M) dataset, which is a large and high-quality dataset (~1M paired images). We hope it can further benefit research.
+
+  <p align="center">
+  <img src="./assets/uno1m.webp" width=50% height=50% >
+  </p>
+- [26/06/2025] 🎉 Congratulations! UNO has been accepted by ICCV 2025!
+- [04/16/2025] 🔥 Our companion project [RealCustom](https://github.com/bytedance/RealCustom) is released.
 - [04/10/2025] 🔥 Update fp8 mode as a primary low vmemory usage support. Gift for consumer-grade GPU users. The peak Vmemory usage is ~16GB now. We may try further inference optimization later.
 - [04/03/2025] 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
 - [04/03/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
@@ -87,19 +89,42 @@ git submodule update --init
 ```
 Then running the following scripts:
 ```bash
-# evaluated on dreambench
+# inference on dreambench
 ## for single-subject
 python inference.py --eval_json_path ./datasets/dreambench_singleip.json
 ## for multi-subject
 python inference.py --eval_json_path ./datasets/dreambench_multiip.json
 ```
 
-
+### 🔍 Evaluation
+```bash
+# evaluated on dreambench
+## for single-subject
+python eval/evaluate_clip_dino_score_single_subject.py --result_root <your_image_result_save_path> -save_dir <the_evaluation_result_save_path>
+## for multi-subject
+python eval/evaluate_clip_dino_score_multi_subject.py --result_root <your_image_result_save_path> -save_dir <the_evaluation_result_save_path>
+```
 
 ### 🚄 Training
-
+If you want to train on [UNO-1M](https://huggingface.co/datasets/bytedance-research/UNO-1M), you need to download the dataset from [HuggingFace](https://huggingface.co/datasets/bytedance-research/UNO-1M), extract and put it in ./datasets/UNO-1M. The directory will be like:
 ```bash
-accelerate launch train.py
+├── datasets
+│   └── UNO-1M
+│       ├── images
+│       │   ├── split1
+│       │   │   ├── object365_w1024_h1536_split_Bread_0_0_1_725x1024.png
+│       │   │   ├── object365_w1024_h1536_split_Bread_0_0_2_811x1024.png
+│       │   │   └── ...
+│       │   └── ...
+│       └── uno_1m_total_labels.json
+```
+Then run the training script:
+```bash
+# filter and format the dataset
+python uno/utils/filter_uno_1m_dataset.py ./datasets/UNO-1M/uno_1m_total_labels.json ./datasets/UNO-1M/uno_1m_total_labels_convert.json 4
+
+# train
+accelerate launch train.py --train_data_json ./datasets/UNO-1M/uno_1m_total_labels_convert.json
 ```
 
 
@@ -109,6 +134,11 @@ We integrate single-subject and multi-subject generation within a unified model.
 UNO excels in subject-driven generation but has room for improvement in generalization due to dataset constraints. We are actively developing an enhanced model—stay tuned for updates. Your feedback is valuable, so please feel free to share any suggestions.
 
 ## 🎨 Application Scenarios
+<p align="center">
+<img src="./assets/teaser.jpg" width=95% height=95% 
+class="center">
+</p>
+
 <p align="center">
 <img src="./assets/simplecase.jpg" width=95% height=95% 
 class="center">
@@ -134,7 +164,8 @@ For the purpose of fostering research and the open-source community, we plan to 
 - [x] Release model checkpoints.
 - [x] Release arXiv paper.
 - [x] Release huggingface space demo.
-- [ ] Release in-context data generation pipelines.
+- [x] Release in-context data generation pipelines (instructions provided in `./template`).
+- [x] Release dataset (UNO-1M).
 
 ## Related resources
 

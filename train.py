@@ -319,8 +319,14 @@ def main(
 
     dataloader = accelerator.prepare_data_loader(dataloader)
     eval_dataloader = accelerator.prepare_data_loader(eval_dataloader)
-    dataloader = itertools.cycle(dataloader)  # as infinite fetch data loader
 
+    def infinite_dataloader(dataloader):
+        while True:
+            for batch in dataloader:
+                yield batch
+            gc.collect()
+
+    dataloader = infinite_dataloader(dataloader)  # as infinite fetch data loader
     ## parallel
     accelerator.state.select_deepspeed_plugin("dit")
     dit, optimizer, lr_scheduler = accelerator.prepare(dit, optimizer, lr_scheduler) 
