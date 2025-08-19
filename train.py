@@ -18,6 +18,7 @@ import itertools
 import logging
 import os
 import random
+import wandb
 from copy import deepcopy
 from typing import TYPE_CHECKING, Literal
 
@@ -125,33 +126,37 @@ def resume_from_checkpoint(
             )
             return dit, dit_ema_dict, 0
         path = dirs[-1]
-    else:
-        path = os.path.basename(resume_from_checkpoint)
-        
 
-    accelerator.print(f"Resuming from checkpoint {path}")
+        global_step = int(path.split("-")[1])
+        resume_path = os.path.join(project_dir, path, 'dit_lora.safetensors')
+        resume_ema_path = os.path.join(project_dir, path, 'dit_lora_ema.safetensors')
+    else:
+        global_step = 0
+        resume_path = resume_from_checkpoint
+        resume_ema_path = resume_from_checkpoint
+
+
+    accelerator.print(f"Resuming from checkpoint {resume_path}")
     lora_state = load_file(
-        os.path.join(project_dir, path, 'dit_lora.safetensors'),
+        resume_path,
         device=accelerator.device.__str__()
     )
     unwarp_dit = accelerator.unwrap_model(dit)
     unwarp_dit.load_state_dict(lora_state, strict=False)
+
     if dit_ema_dict is not None:
         dit_ema_dict = load_file(
-            os.path.join(project_dir, path, 'dit_lora_ema.safetensors'),
+            resume_ema_path,
             device=accelerator.device.__str__()
         )
-        if dit is not unwarp_dit:
-            dit_ema_dict = {f"module.{k}": v for k, v in dit_ema_dict.items() if k in unwarp_dit.state_dict()}
-
-    global_step = int(path.split("-")[1])
+        dit_ema_dict = {f"module.{k}": v for k, v in dit_ema_dict.items() if k in unwarp_dit.state_dict()}
     
     return dit, dit_ema_dict, global_step
 
 @dataclasses.dataclass
 class TrainArgs:
     ## accelerator
-    project_dir: str | None = None
+    project_dir: str | None = "log"
     mixed_precision: Literal["no", "fp16", "bf16"] = "bf16"
     gradient_accumulation_steps: int = 1
     seed: int = 42
@@ -177,7 +182,7 @@ class TrainArgs:
 
 
     ## optimizer
-    learning_rate: float = 1e-2
+    learning_rate: float = 8e-5
     adam_betas: list[float] = dataclasses.field(default_factory=lambda: [0.9, 0.999])
     adam_eps: float = 1e-8
     adam_weight_decay: float = 0.01
@@ -190,13 +195,13 @@ class TrainArgs:
 
     ## dataloader
     # TODO: change to your own dataset, or use one data syenthsize pipeline comming in the future. stay tuned
-    train_data_json: str = "datasets/dreambench_singleip.json"
+    train_data_json: str = "datasets/UNO-1M/uno_1m_total_labels_convert.json"
     batch_size: int = 1
     text_dropout: float = 0.1
     resolution: int = 512
     resolution_ref: int | None = None
 
-    eval_data_json: str = "datasets/dreambench_singleip.json"
+    eval_data_json: str = "datasets/dreambench_toy.json"
     eval_batch_size: int = 1
 
     ## misc
@@ -420,10 +425,11 @@ def main(
             for tgt_name in dit_ema_dict:
                 dit_ema_dict[tgt_name].data.lerp_(src_dict[tgt_name].to(dit_ema_dict[tgt_name]), 1 - args.ema_decay)
 
-        if accelerator.sync_gradients and accelerator.is_main_process and global_step % args.checkpointing_steps == 0:
+        if accelerator.sync_gradients and global_step % args.checkpointing_steps == 0:
             logger.info(f"saving checkpoint in {global_step=}")
             save_path = os.path.join(args.project_dir, f"checkpoint-{global_step}")
-            os.makedirs(save_path, exist_ok=True)
+            if accelerator.is_main_process:
+                os.makedirs(save_path, exist_ok=True)
 
             # save
             accelerator.wait_for_everyone()
@@ -432,28 +438,39 @@ def main(
             requires_grad_key = [k for k, v in unwrapped_model.named_parameters() if v.requires_grad]
             unwrapped_model_state = {k: unwrapped_model_state[k] for k in requires_grad_key}
 
-            accelerator.save(
-                unwrapped_model_state,
-                os.path.join(save_path, 'dit_lora.safetensors'),
-                safe_serialization=True
-            )
+            if accelerator.is_main_process:
+                accelerator.save(
+                    unwrapped_model_state,
+                    os.path.join(save_path, 'dit_lora.safetensors'),
+                    safe_serialization=True
+                )
+            
             unwrapped_opt = accelerator.unwrap_model(optimizer)
-            accelerator.save(unwrapped_opt.state_dict(), os.path.join(save_path, 'optimizer.bin'))
+            if accelerator.is_main_process:
+                accelerator.save(unwrapped_opt.state_dict(), os.path.join(save_path, 'optimizer.bin'))
             logger.info(f"Saved state to {save_path}")
 
-            if args.ema:
+            if args.ema and accelerator.is_main_process:
                 accelerator.save(
                     {k.split("module.")[-1]: v for k, v in dit_ema_dict.items()},
                     os.path.join(save_path, 'dit_lora_ema.safetensors'),
                     safe_serialization=True
                 )
+            
+            # log
+            images_log, images_ref_log = [], []
+            for batch_idx in range(min(bs, 8)):
+                images_log.append(wandb.Image((img[batch_idx:batch_idx+1] * 0.5 + 0.5).float(), caption=prompts[batch_idx]))
+                for ref_idx in range(len(ref_imgs)):
+                    images_ref_log.append(wandb.Image((ref_imgs[ref_idx][batch_idx:batch_idx+1] * 0.5 + 0.5).float(), caption=f"ref_{ref_idx}"))
+            accelerator.log({"images_tgt": images_log, "images_ref": images_ref_log}, step=global_step)
 
             # validate
             dit.eval()
             torch.set_grad_enabled(False)
             for i, batch in enumerate(eval_dataloader):
                 result = inference(batch, dit, t5, clip, vae, accelerator, seed=0)
-                accelerator.log({f"eval_gen_{i}": result}, step=global_step)
+                accelerator.log({f"eval_gen_{i}": wandb.Image(result, caption=batch["txt"][-1])}, step=global_step)
 
 
             if args.ema:
@@ -461,7 +478,7 @@ def main(
                 dit.load_state_dict(dit_ema_dict, strict=False)
                 for batch in eval_dataloader:
                     result = inference(batch, dit, t5, clip, vae, accelerator, seed=0)
-                    accelerator.log({f"eval_ema_gen_{i}": result}, step=global_step)
+                    accelerator.log({f"eval_ema_gen_{i}": wandb.Image(result, caption=batch["txt"][-1])}, step=global_step)
                 dit.load_state_dict(original_state_dict, strict=False)
             
             torch.cuda.empty_cache()

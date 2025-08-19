@@ -1,0 +1,9 @@
+[
+    {
+        "prompt": "a backpack in the jungle",
+        "image_tgt_path": "./dreambooth/dataset/backpack/02.jpg",
+        "image_paths": [
+            "./dreambooth/dataset/backpack/02.jpg"
+        ]
+    }
+]

@@ -181,3 +181,6 @@ output/
 *.bin
 *.pt
 *.pth
+
+log/
+datasets/UNO-1M/

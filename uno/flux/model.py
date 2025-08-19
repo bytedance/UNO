@@ -177,9 +177,8 @@ class Flux(nn.Module):
         img_end = img.shape[1]
         if ref_img is not None:
             if isinstance(ref_img, tuple) or isinstance(ref_img, list):
-                img_in = [img] + [self.img_in(ref) for ref in ref_img]
+                img = torch.cat([img, self.img_in(torch.cat(ref_img, dim=1))], dim=1)
                 img_ids = [ids] + [ref_ids for ref_ids in ref_img_ids]
-                img = torch.cat(img_in, dim=1)  
                 ids = torch.cat(img_ids, dim=1)
             else:
                 img = torch.cat((img, self.img_in(ref_img)), dim=1)  
