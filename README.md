@@ -16,18 +16,26 @@
 ><span style="font-size: 16px">Intelligent Creation Team, ByteDance</span></p>
 
 ## 🔥 News
-- [08/18/2024] ✨ We open-sourced the [UNO-1M](https://huggingface.co/datasets/bytedance-research/UNO-1M) dataset, which is a large and high-quality dataset (~1M paired images). We hope it can further benefit research.
+* **2025.08.29** 🔥 We are excited to share our new open-source project [USO](https://github.com/bytedance/USO), which can freely combine any subjects with any styles in any scenarios while ensuring photorealistic results. 🔥
+<div style="text-align: center; margin: 10px 0;">
+<img src="./assets/teaser_uso2uno.webp" width="85%" height="auto" alt="USO Project Demo">
+<p style="font-size: 12px; font-family: 'Gill Sans', sans-serif; color: #666; margin-top: 8px;">
+You can visit our <a href="https://bytedance.github.io/USO/" target="_blank">project page</a> or try the <a href="https://huggingface.co/spaces/bytedance-research/USO" target="_blank">live demo</a> for more examples.
+</p>
+</div>
 
-  <p align="center">
-  <img src="./assets/uno1m.webp" width=50% height=50% >
-  </p>
-- [26/06/2025] 🎉 Congratulations! UNO has been accepted by ICCV 2025!
-- [04/16/2025] 🔥 Our companion project [RealCustom](https://github.com/bytedance/RealCustom) is released.
-- [04/10/2025] 🔥 Update fp8 mode as a primary low vmemory usage support. Gift for consumer-grade GPU users. The peak Vmemory usage is ~16GB now. We may try further inference optimization later.
-- [04/03/2025] 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
-- [04/03/2025] 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
-- [04/02/2025] 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created.
-- [04/02/2025] 🔥 The arXiv [paper](https://arxiv.org/abs/2504.02160) of UNO is released.
+* **2025.08.18** ✨ We open-sourced the [UNO-1M](https://huggingface.co/datasets/bytedance-research/UNO-1M) dataset, which is a large and high-quality dataset (~1M paired images). We hope it can further benefit research.
+<p align="center">
+<img src="./assets/uno1m.webp" width=30% height="auto">
+</p>
+
+* **2025.06.26** 🎉 Congratulations! UNO has been accepted by ICCV 2025!
+* **2025.04.16** 🔥 Our companion project [RealCustom](https://github.com/bytedance/RealCustom) is released.
+* **2025.04.10** 🔥 Update fp8 mode as a primary low vmemory usage support. Gift for consumer-grade GPU users. The peak Vmemory usage is ~16GB now. We may try further inference optimization later.
+* **2025.04.03** 🔥 The [demo](https://huggingface.co/spaces/bytedance-research/UNO-FLUX) of UNO is released.
+* **2025.04.03** 🔥 The [training code](https://github.com/bytedance/UNO), [inference code](https://github.com/bytedance/UNO), and [model](https://huggingface.co/bytedance-research/UNO) of UNO are released.
+* **2025.04.02** 🔥 The [project page](https://bytedance.github.io/UNO) of UNO is created.
+* **2025.04.02** 🔥 The arXiv [paper](https://arxiv.org/abs/2504.02160) of UNO is released.
 
 ## 📖 Introduction
 In this study, we propose a highly-consistent data synthesis pipeline to tackle this challenge. This pipeline harnesses the intrinsic in-context generation capabilities of diffusion transformers and generates high-consistency multi-subject paired data. Additionally, we introduce UNO, which consists of progressive cross-modal alignment and universal rotary position embedding. It is a multi-image conditioned subject-to-image model iteratively trained from a text-to-image model. Extensive experiments show that our method can achieve high consistency while ensuring controllability in both single-subject and multi-subject driven generation.
@@ -149,9 +157,7 @@ class="center">
 We open-source this project for academic research. The vast majority of images 
 used in this project are either generated or licensed. If you have any concerns, 
 please contact us, and we will promptly remove any inappropriate content. 
-Our code is released under the Apache 2.0 License,, while our models are under 
-the CC BY-NC 4.0 License. Any models related to <a href="https://huggingface.co/black-forest-labs/FLUX.1-dev" target="_blank">FLUX.1-dev</a> 
-base model must adhere to the original licensing terms.
+Our code is released under the Apache 2.0 License. Any used base model must adhere to the original licensing terms.
 <br><br>This research aims to advance the field of generative AI. Users are free to 
 create images using this tool, provided they comply with local laws and exercise 
 responsible usage. The developers are not liable for any misuse of the tool by users.</p>
