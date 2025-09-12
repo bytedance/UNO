@@ -16,9 +16,17 @@
 ><span style="font-size: 16px">Intelligent Creation Team, ByteDance</span></p>
 
 ## 🔥 News
+* **2025.09.12** 🔥 [UMO](https://github.com/bytedance/UMO) is here! It can freely combine one-to-many identity with any subjects in any scenarios, delivering outputs with high subject/identity consistency. You now can experience a more powerful UNO or OmniGen2 [here](https://github.com/bytedance/UMO)! 🔥
+<div style="text-align: center; margin: 10px 0;">
+<img src="./assets/teaser_umo2uno.webp" width="100%" height="auto" alt="UMO Project Demo">
+<p style="font-size: 12px; font-family: 'Gill Sans', sans-serif; color: #666; margin-top: 8px;">
+You can visit our <a href="https://bytedance.github.io/UMO/" target="_blank">project page</a> for more examples.
+</p>
+</div>
+
 * **2025.08.29** 🔥 We are excited to share our new open-source project [USO](https://github.com/bytedance/USO), which can freely combine any subjects with any styles in any scenarios while ensuring photorealistic results. 🔥
 <div style="text-align: center; margin: 10px 0;">
-<img src="./assets/teaser_uso2uno.webp" width="85%" height="auto" alt="USO Project Demo">
+<img src="./assets/teaser_uso2uno.webp" width="100%" height="auto" alt="USO Project Demo">
 <p style="font-size: 12px; font-family: 'Gill Sans', sans-serif; color: #666; margin-top: 8px;">
 You can visit our <a href="https://bytedance.github.io/USO/" target="_blank">project page</a> or try the <a href="https://huggingface.co/spaces/bytedance-research/USO" target="_blank">live demo</a> for more examples.
 </p>
